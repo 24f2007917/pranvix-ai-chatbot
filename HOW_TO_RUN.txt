@@ -1,0 +1,103 @@
+╔══════════════════════════════════════════════════════════╗
+║           🤖  PRANVIX AI CHATBOT                         ║
+║   B.Tech CSE AI&B 1-A | BBDU, Lucknow                   ║
+║   Subject: Java Fundamentals                             ║
+║   Team: Pratiksha, Anvesha Chauhan, Ujjwal Singh         ║
+╚══════════════════════════════════════════════════════════╝
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  HOW TO RUN ON LOCALHOST (CMD)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1 — Install Node.js (ONE TIME ONLY)
+  → Download from: https://nodejs.org
+  → Choose "LTS" version → Install
+  → Verify: Open CMD → type:  node --version
+  → Should show something like: v20.x.x
+
+STEP 2 — Copy all project files into ONE folder
+  Files needed:
+    ✅ server.js
+    ✅ style.css
+    ✅ auth.js
+    ✅ login.html
+    ✅ register.html
+    ✅ chatbot.html
+    ✅ schema.sql  (only for database reference)
+
+STEP 3 — Open CMD in the project folder
+  Option A (Easiest):
+    → Open the folder in File Explorer
+    → Click on the address bar at the top
+    → Type: cmd  → Press Enter
+    → CMD opens directly in that folder ✅
+
+  Option B:
+    → Press Win + R → type "cmd" → Enter
+    → Navigate to folder:
+      cd C:\Users\YourName\Desktop\pranvix
+
+STEP 4 — Start the server
+  Type this command and press Enter:
+
+    node server.js
+
+  You will see:
+    ╔══════════════════════════════════════╗
+    ║       🤖  PRANVIX AI CHATBOT         ║
+    ║  ✅  Server running on port 3000     ║
+    ║  👉  http://localhost:3000           ║
+    ╚══════════════════════════════════════╝
+
+STEP 5 — Open in browser
+  → Open Chrome / Edge / Firefox
+  → Go to:  http://localhost:3000
+  → Pranvix will load! ✅
+
+STEP 6 — Use the app
+  → Click "Create an Account" → Register
+  → Login with your username & password
+  → Start chatting with the AI! 🚀
+
+STEP 7 — Stop the server
+  → Go back to CMD
+  → Press: Ctrl + C
+  → Server stops.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ "node is not recognized"
+   → Node.js is not installed. Go to Step 1.
+
+❌ "Error: Cannot find module" or "ENOENT"
+   → Make sure all files are in the SAME folder as server.js.
+
+❌ "Port 3000 already in use"
+   → Another program is using port 3000.
+   → Open server.js and change: const PORT = 3000;
+     to: const PORT = 4000;  (or any other number)
+   → Then visit: http://localhost:4000
+
+❌ AI not responding / Network error
+   → Make sure your laptop is connected to the internet.
+   → The AI needs internet to call the Pranvix AI API.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SUPPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Email: ujjwalsingh16072006@bbdu.ac.in
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PROJECT INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Project Name : Pranvix AI Chatbot
+  Subject      : Java Fundamentals
+  Branch       : B.Tech CSE AI&B 1-A
+  University   : Babu Banarasi Das University (BBDU), Lucknow
+  Academic Year: 2024–25
+  Team Members :
+    1. Pratiksha
+    2. Anvesha Chauhan
+    3. Ujjwal Singh

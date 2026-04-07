@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Pranvix AI</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Theme toggle -->
+  <button class="theme-btn-auth" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <span class="logo-text">Pranvix</span>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to your AI study companion</p>
+
+    <div class="alert error" id="alert-msg"></div>
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="off"/>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password"/>
+    </div>
+
+    <button class="btn" onclick="handleLogin()">Sign In →</button>
+
+    <div class="divider">or</div>
+    <button class="btn btn-outline" onclick="window.location.href='register.html'">Create New Account</button>
+
+    <div class="link-row">
+      New here? <a href="register.html">Register for free</a>
+    </div>
+
+    <div class="support-bar">
+      Need help? <a href="mailto:ujjwalsingh16072006@bbdu.ac.in">ujjwalsingh16072006@bbdu.ac.in</a>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    // Update theme button icon on load
+    const themeBtn = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('pranvix_theme') || 'dark';
+    if (themeBtn) themeBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+
+    // Redirect if already logged in
+    if (getLoggedInUser()) window.location.href = 'chatbot.html';
+
+    function handleLogin() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const alertEl  = document.getElementById('alert-msg');
+      alertEl.style.display = 'none';
+
+      if (!username || !password)
+        return showAlert(alertEl, 'error', '⚠️ Please enter both username and password.');
+
+      const users = JSON.parse(localStorage.getItem('pranvix_users') || '[]');
+      const user  = users.find(u => u.username === username && u.password === btoa(password));
+
+      if (user) {
+        // Update last login
+        user.lastLogin = new Date().toISOString();
+        localStorage.setItem('pranvix_users', JSON.stringify(users));
+        localStorage.setItem('pranvix_user', JSON.stringify({
+          username: user.username, name: user.name,
+          email: user.email, joinedAt: user.createdAt
+        }));
+        showAlert(alertEl, 'success', '✅ Login successful! Redirecting...');
+        setTimeout(() => window.location.href = 'chatbot.html', 900);
+      } else {
+        showAlert(alertEl, 'error', '❌ Invalid username or password. Please try again.');
+      }
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+  </script>
+</body>
+</html>

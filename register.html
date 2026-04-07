@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — Pranvix AI</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <button class="theme-btn-auth" id="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+
+  <div class="card" style="max-width:450px">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <span class="logo-text">Pranvix</span>
+    </div>
+
+    <h1>Create Account</h1>
+    <p class="subtitle">Join Pranvix — Your AI-Powered Study Companion</p>
+
+    <div class="alert error"   id="alert-error"></div>
+    <div class="alert success" id="alert-success"></div>
+
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" placeholder="e.g. Ujjwal Singh" autocomplete="off"/>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" placeholder="e.g. yourname@bbdu.ac.in"/>
+    </div>
+
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" placeholder="Choose a username (min. 3 chars)" autocomplete="off"/>
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Min. 6 characters"/>
+    </div>
+
+    <div class="form-group">
+      <label for="confirm">Confirm Password</label>
+      <input type="password" id="confirm" placeholder="Re-enter your password"/>
+    </div>
+
+    <button class="btn" onclick="handleRegister()">Create Account →</button>
+
+    <div class="link-row" style="margin-top:16px">
+      Already have an account? <a href="login.html">Sign in</a>
+    </div>
+
+    <div class="support-bar">
+      Need help? <a href="mailto:ujjwalsingh16072006@bbdu.ac.in">ujjwalsingh16072006@bbdu.ac.in</a>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+  <script>
+    const themeBtn = document.getElementById('theme-toggle');
+    const ct = localStorage.getItem('pranvix_theme') || 'dark';
+    if (themeBtn) themeBtn.textContent = ct === 'dark' ? '☀️' : '🌙';
+
+    if (getLoggedInUser()) window.location.href = 'chatbot.html';
+
+    function handleRegister() {
+      const name     = document.getElementById('name').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm  = document.getElementById('confirm').value;
+      const errEl    = document.getElementById('alert-error');
+      const okEl     = document.getElementById('alert-success');
+      errEl.style.display = 'none'; okEl.style.display = 'none';
+
+      if (!name || !email || !username || !password || !confirm)
+        return showAlert(errEl, 'error', '⚠️ Please fill in all fields.');
+      if (!/\S+@\S+\.\S+/.test(email))
+        return showAlert(errEl, 'error', '⚠️ Please enter a valid email address.');
+      if (username.length < 3)
+        return showAlert(errEl, 'error', '⚠️ Username must be at least 3 characters.');
+      if (password.length < 6)
+        return showAlert(errEl, 'error', '⚠️ Password must be at least 6 characters.');
+      if (password !== confirm)
+        return showAlert(errEl, 'error', '⚠️ Passwords do not match.');
+
+      const users = JSON.parse(localStorage.getItem('pranvix_users') || '[]');
+      if (users.find(u => u.username === username))
+        return showAlert(errEl, 'error', '❌ Username already taken. Choose another.');
+      if (users.find(u => u.email === email))
+        return showAlert(errEl, 'error', '❌ This email is already registered.');
+
+      users.push({ name, email, username, password: btoa(password), createdAt: new Date().toISOString() });
+      localStorage.setItem('pranvix_users', JSON.stringify(users));
+      showAlert(okEl, 'success', '✅ Account created successfully! Redirecting to login...');
+      setTimeout(() => window.location.href = 'login.html', 1200);
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') handleRegister(); });
+  </script>
+</body>
+</html>

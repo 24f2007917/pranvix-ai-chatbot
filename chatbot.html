@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pranvix — AI Chat</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="chat-body">
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- ══ PROFILE MODAL ══ -->
+<div class="modal-overlay" id="profile-modal" onclick="closeProfile(event)">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeProfileBtn()">✕</button>
+    <div class="profile-avatar-lg" id="modal-avatar">U</div>
+    <div class="profile-name"     id="modal-name">User</div>
+    <div class="profile-role">B.Tech CSE AI&amp;B 1-A &bull; BBDU</div>
+    <div class="profile-info-grid" style="margin-top:20px">
+      <div class="profile-info-item">
+        <div class="pii-icon">📧</div>
+        <div><div class="pii-label">Email</div><div class="pii-value" id="modal-email">—</div></div>
+      </div>
+      <div class="profile-info-item">
+        <div class="pii-icon">👤</div>
+        <div><div class="pii-label">Username</div><div class="pii-value" id="modal-username">—</div></div>
+      </div>
+      <div class="profile-info-item">
+        <div class="pii-icon">📅</div>
+        <div><div class="pii-label">Member Since</div><div class="pii-value" id="modal-joined">—</div></div>
+      </div>
+      <div class="profile-info-item">
+        <div class="pii-icon">💬</div>
+        <div><div class="pii-label">Total Messages</div><div class="pii-value" id="modal-msgs">0</div></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      🤖 Pranvix AI &bull; Java Fundamentals Project &bull; BBDU 2024–25<br>
+      <span style="margin-top:4px;display:block">Pratiksha &bull; Anvesha Chauhan &bull; Ujjwal Singh</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP LAYOUT ══ -->
+<div style="display:flex;flex:1;overflow:hidden;width:100%">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="logo-icon">🤖</div>
+        <span class="logo-text">Pranvix</span>
+      </div>
+      <button class="new-chat-btn" onclick="newChat()">+ New Chat</button>
+    </div>
+
+    <div class="sidebar-section-title">Chat History</div>
+    <div class="history-list" id="history-list">
+      <div style="padding:16px 10px;font-size:13px;color:var(--muted);text-align:center">
+        No chats yet.<br>Start a conversation!
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sf-avatar" id="sf-avatar">U</div>
+      <div class="sf-info">
+        <div class="sf-name" id="sf-name">User</div>
+        <div class="sf-role">B.Tech CSE AI&amp;B 1-A</div>
+      </div>
+      <button class="sf-btn" onclick="openProfile()" title="View Profile">⚙️</button>
+    </div>
+  </aside>
+
+  <!-- Main chat -->
+  <main class="chat-main">
+
+    <header class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-title">🤖 Pranvix AI</div>
+      </div>
+      <div class="chat-header-right">
+        <button class="icon-btn" id="theme-toggle" onclick="handleThemeToggle()" title="Toggle theme">☀️</button>
+        <button class="icon-btn" onclick="openProfile()" title="Profile">👤</button>
+        <button class="icon-btn" onclick="confirmLogout()" title="Sign out" style="color:var(--red)">⏻</button>
+      </div>
+    </header>
+
+    <div class="chat-container" id="chat-container"></div>
+
+    <footer class="chat-footer">
+      <div class="input-row">
+        <input type="text" id="chat-input" placeholder="Ask Pranvix anything..." autocomplete="off"/>
+        <button id="send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="footer-bottom">
+        <div class="suggestions">
+          <span class="chip" onclick="quickSend('Explain Java OOP with examples')">☕ Java OOP</span>
+          <span class="chip" onclick="quickSend('Explain what SQL is and show basic queries')">🗄 SQL Basics</span>
+          <span class="chip" onclick="quickSend('Tell me a funny programming joke')">😂 Joke</span>
+          <span class="chip" onclick="quickSend('Help me understand arrays in Java')">📦 Arrays</span>
+          <span class="chip" onclick="quickSend('What is HTML and CSS? Give a simple example')">🌐 HTML/CSS</span>
+        </div>
+        <div class="token-info" id="token-info"></div>
+      </div>
+    </footer>
+
+  </main>
+</div>
+
+<script src="auth.js"></script>
+<script>
+// ── Auth guard ─────────────────────────────────────────────────
+const user = getLoggedInUser();
+if (!user) window.location.href = 'login.html';
+
+// ── Theme ──────────────────────────────────────────────────────
+function handleThemeToggle() {
+  toggleTheme();
+  const t = localStorage.getItem('pranvix_theme') || 'dark';
+  document.getElementById('theme-toggle').textContent = t === 'dark' ? '☀️' : '🌙';
+}
+const curTheme = localStorage.getItem('pranvix_theme') || 'dark';
+document.getElementById('theme-toggle').textContent = curTheme === 'dark' ? '☀️' : '🌙';
+
+// ── User info ──────────────────────────────────────────────────
+document.getElementById('sf-name').textContent   = user.name || user.username;
+document.getElementById('sf-avatar').textContent = (user.name || user.username)[0].toUpperCase();
+
+// ── State ──────────────────────────────────────────────────────
+let conversationHistory = [];
+let isTyping = false;
+let currentSessionId = null;
+const SESSIONS_KEY = 'pranvix_sessions_' + user.username;
+
+const SYSTEM_PROMPT = `You are Pranvix, a friendly and intelligent AI assistant created as a college project by Pratiksha, Anvesha Chauhan, and Ujjwal Singh — B.Tech CSE AI&B 1-A students at Babu Banarasi Das University (BBDU), Lucknow, for their Java Fundamentals subject.
+
+Your personality:
+- Friendly, encouraging, and patient — great for college students
+- Clear, structured explanations with practical code examples
+- Use emojis occasionally to stay engaging
+- Format code properly with backtick code blocks
+- Keep answers focused but thorough when needed
+- The user's name is: ${user.name || user.username}
+
+You specialise in:
+1. Java programming — OOP, data structures, loops, arrays, exceptions, JDBC
+2. Web development — HTML, CSS, JavaScript
+3. SQL & databases — queries, joins, schema design
+4. General Q&A — any topic a college student might ask
+5. Fun conversation — jokes, casual chat, motivational quotes`;
+
+// ── Format markdown ────────────────────────────────────────────
+function fmt(text) {
+  return text
+    .replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g,            '<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,        '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,            '<em>$1</em>')
+    .replace(/^#{3}\s(.+)$/gm,        '<h4 style="margin:8px 0 4px;color:var(--accent)">$1</h4>')
+    .replace(/^#{2}\s(.+)$/gm,        '<h3 style="margin:10px 0 5px;color:var(--accent)">$1</h3>')
+    .replace(/^- (.+)$/gm,            '<li>$1</li>')
+    .replace(/(<li>[\s\S]+?<\/li>)/g, '<ul>$1</ul>')
+    .replace(/\n{2,}/g,               '<br><br>')
+    .replace(/\n/g,                   '<br>');
+}
+
+// ── Add message ────────────────────────────────────────────────
+function addMessage(html, sender, isError = false) {
+  const container = document.getElementById('chat-container');
+  const div = document.createElement('div');
+  div.className = `message ${sender}`;
+  const av = sender === 'bot' ? 'PX' : (user.name || user.username)[0].toUpperCase();
+  div.innerHTML = `<div class="msg-avatar">${av}</div><div class="msg-bubble ${isError ? 'error-bubble' : ''}">${html}</div>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const c = document.getElementById('chat-container');
+  const d = document.createElement('div');
+  d.className = 'message bot'; d.id = 'typing-indicator';
+  d.innerHTML = `<div class="msg-avatar">PX</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function removeTyping() { document.getElementById('typing-indicator')?.remove(); }
+
+function setSendState(on) {
+  isTyping = on;
+  document.getElementById('chat-input').disabled = on;
+  const btn = document.getElementById('send-btn');
+  btn.style.opacity = on ? '0.5' : '1';
+  btn.style.cursor  = on ? 'not-allowed' : 'pointer';
+}
+
+// ── ✅ Call LOCAL SERVER /api/chat (NOT Anthropic directly) ─────
+async function callAPI(userMessage) {
+  conversationHistory.push({ role: 'user', content: userMessage });
+  if (conversationHistory.length > 40)
+    conversationHistory = conversationHistory.slice(-40);
+
+  // Calls YOUR local Node.js server → server forwards to Anthropic
+  const response = await fetch('/api/chat', {
+    method : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body   : JSON.stringify({
+      system  : SYSTEM_PROMPT,
+      messages: conversationHistory
+    })
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error?.message || `Server error ${response.status}`);
+  }
+
+  const reply = data.content[0].text;
+  conversationHistory.push({ role: 'assistant', content: reply });
+
+  if (data.usage) {
+    document.getElementById('token-info').textContent =
+      `${data.usage.input_tokens} in · ${data.usage.output_tokens} out tokens`;
+  }
+  return reply;
+}
+
+// ── Send message ───────────────────────────────────────────────
+async function sendMessage() {
+  if (isTyping) return;
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  addMessage(text, 'user');
+  saveMessage(text, 'user');
+  setSendState(true);
+  showTyping();
+
+  try {
+    const reply = await callAPI(text);
+    removeTyping();
+    addMessage(fmt(reply), 'bot');
+    saveMessage(reply, 'bot');
+    refreshSidebar();
+  } catch (err) {
+    removeTyping();
+    let errMsg = err.message;
+    // Friendly messages for common errors
+    if (errMsg.includes('API key not set'))
+      errMsg = '🔑 API key not set in server.js. Open server.js and paste your Anthropic API key.';
+    else if (errMsg.includes('invalid x-api-key') || errMsg.includes('authentication'))
+      errMsg = '🔑 Invalid API key. Double-check the key you pasted in server.js.';
+    addMessage(`⚠️ <strong>Error:</strong> ${errMsg}`, 'bot', true);
+  } finally {
+    setSendState(false);
+    input.focus();
+  }
+}
+
+function quickSend(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// ── Session management ─────────────────────────────────────────
+function getSessions()       { return JSON.parse(localStorage.getItem(SESSIONS_KEY) || '[]'); }
+function saveSessions(s)     { localStorage.setItem(SESSIONS_KEY, JSON.stringify(s)); }
+
+function newChat() {
+  const sessions   = getSessions();
+  const sessionId  = 'session_' + Date.now();
+  sessions.unshift({ id: sessionId, title: 'New Chat', messages: [], createdAt: new Date().toISOString() });
+  saveSessions(sessions);
+  currentSessionId = sessionId;
+  conversationHistory = [];
+  document.getElementById('chat-container').innerHTML = '';
+  document.getElementById('token-info').textContent   = '';
+  setTimeout(() => addMessage(`👋 Hi <strong>${user.name}</strong>! New conversation started. What would you like to talk about?`, 'bot'), 250);
+  refreshSidebar();
+}
+
+function saveMessage(text, sender) {
+  if (!currentSessionId) return;
+  const sessions = getSessions();
+  const session  = sessions.find(s => s.id === currentSessionId);
+  if (!session) return;
+  session.messages.push({ text, sender, time: new Date().toISOString() });
+  if (sender === 'user' && session.title === 'New Chat')
+    session.title = text.substring(0, 36) + (text.length > 36 ? '…' : '');
+  if (session.messages.length > 80) session.messages = session.messages.slice(-80);
+  saveSessions(sessions);
+}
+
+function loadSession(sessionId) {
+  const sessions = getSessions();
+  const session  = sessions.find(s => s.id === sessionId);
+  if (!session) return;
+  currentSessionId    = sessionId;
+  conversationHistory = [];
+  document.getElementById('chat-container').innerHTML = '';
+  document.getElementById('token-info').textContent   = '';
+
+  session.messages.slice(-30).forEach(m => {
+    const div = document.createElement('div');
+    div.className = `message ${m.sender}`;
+    const av = m.sender === 'bot' ? 'PX' : (user.name||user.username)[0].toUpperCase();
+    div.innerHTML = `<div class="msg-avatar">${av}</div><div class="msg-bubble">${m.sender==='bot' ? fmt(m.text) : m.text}</div>`;
+    document.getElementById('chat-container').appendChild(div);
+    conversationHistory.push({ role: m.sender==='user'?'user':'assistant', content: m.text });
+  });
+  document.getElementById('chat-container').scrollTop = 99999;
+  refreshSidebar();
+}
+
+function deleteSession(id, e) {
+  e.stopPropagation();
+  const sessions = getSessions().filter(s => s.id !== id);
+  saveSessions(sessions);
+  if (id === currentSessionId) {
+    currentSessionId = null; conversationHistory = [];
+    document.getElementById('chat-container').innerHTML = '';
+    sessions.length > 0 ? loadSession(sessions[0].id) : showWelcome();
+  }
+  refreshSidebar();
+}
+
+function refreshSidebar() {
+  const sessions = getSessions();
+  const list = document.getElementById('history-list');
+  if (sessions.length === 0) {
+    list.innerHTML = `<div style="padding:16px 10px;font-size:13px;color:var(--muted);text-align:center">No chats yet.<br>Start a conversation!</div>`;
+    return;
+  }
+  const today     = new Date().toDateString();
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  const groups    = {};
+  sessions.forEach(s => {
+    const d = new Date(s.createdAt).toDateString();
+    const label = d===today?'Today':d===yesterday?'Yesterday':new Date(s.createdAt).toLocaleDateString('en-IN',{month:'short',day:'numeric'});
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(s);
+  });
+  let html = '';
+  for (const [label, items] of Object.entries(groups)) {
+    html += `<div class="history-date-label">${label}</div>`;
+    items.forEach(s => {
+      const active = s.id === currentSessionId ? 'active' : '';
+      html += `<div class="history-item ${active}" onclick="loadSession('${s.id}')" title="${s.title}">
+        <span class="hi-icon">💬</span>
+        <span class="hi-text">${s.title}</span>
+        <button onclick="deleteSession('${s.id}',event)" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;margin-left:auto;flex-shrink:0;padding:0 2px" title="Delete">✕</button>
+      </div>`;
+    });
+  }
+  list.innerHTML = html;
+}
+
+function showWelcome() {
+  addMessage(
+    `👋 Hello, <strong>${user.name}</strong>! I'm <strong>Pranvix AI</strong> 🤖<br><br>
+     Your AI-Powered Study Companion — here to help you with:<br>
+     • ☕ <strong>Java programming</strong> — OOP, loops, arrays, JDBC<br>
+     • 🌐 <strong>Web dev</strong> — HTML, CSS, JavaScript<br>
+     • 🗄 <strong>SQL & databases</strong> — queries, schema, joins<br>
+     • 💡 <strong>General Q&A</strong> — anything you're curious about<br><br>
+     Type your question or pick a suggestion below! 🚀`, 'bot');
+}
+
+// ── Profile modal ──────────────────────────────────────────────
+function openProfile() {
+  document.getElementById('modal-avatar').textContent   = (user.name||user.username)[0].toUpperCase();
+  document.getElementById('modal-name').textContent     = user.name || user.username;
+  document.getElementById('modal-email').textContent    = user.email || '—';
+  document.getElementById('modal-username').textContent = user.username || '—';
+  const joined = user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'}) : '—';
+  document.getElementById('modal-joined').textContent   = joined;
+  const total = getSessions().reduce((s,session)=>s+(session.messages?.length||0),0);
+  document.getElementById('modal-msgs').textContent = total;
+  document.getElementById('profile-modal').classList.add('open');
+}
+function closeProfile(e) {
+  if (e.target===document.getElementById('profile-modal'))
+    document.getElementById('profile-modal').classList.remove('open');
+}
+function closeProfileBtn() { document.getElementById('profile-modal').classList.remove('open'); }
+function confirmLogout()   { if (confirm('Sign out of Pranvix?')) logout(); }
+
+// ── Init ───────────────────────────────────────────────────────
+(function init() {
+  const sessions = getSessions();
+  if (sessions.length > 0) loadSession(sessions[0].id);
+  else { newChat(); document.getElementById('chat-container').innerHTML=''; setTimeout(showWelcome,400); }
+})();
+</script>
+</body>
+</html>
